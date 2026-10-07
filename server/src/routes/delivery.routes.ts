@@ -1,0 +1,11 @@
+import { Router } from "express";
+import { verifyToken, onlyRole, AuthRequest } from "../middleware/auth";
+import { getAvailableOrders, getMyDeliveries, acceptOrder, releaseOrder, deliverOrder } from "../services/order.service";
+const router=Router();
+router.use(verifyToken,onlyRole("delivery"));
+router.get("/available",async(_req,res)=>{try{res.json(await getAvailableOrders());}catch(e:any){res.status(500).json({message:e.message});}});
+router.get("/history",async(req:AuthRequest,res)=>{try{res.json(await getMyDeliveries(req.user!.id));}catch(e:any){res.status(500).json({message:e.message});}});
+router.post("/orders/:id/accept",async(req:AuthRequest,res)=>{try{res.json(await acceptOrder(req.user!.id,req.params.id));}catch(e:any){res.status(409).json({message:e.message});}});
+router.post("/orders/:id/release",async(req:AuthRequest,res)=>{try{res.json(await releaseOrder(req.user!.id,req.params.id));}catch(e:any){res.status(400).json({message:e.message});}});
+router.post("/orders/:id/deliver",async(req:AuthRequest,res)=>{try{res.json(await deliverOrder(req.user!.id,req.params.id));}catch(e:any){res.status(400).json({message:e.message});}});
+export default router;

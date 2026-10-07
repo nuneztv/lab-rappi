@@ -1,0 +1,3 @@
+export const API=process.env.NEXT_PUBLIC_API_URL||"http://localhost:4000";
+export async function api(path:string,options:RequestInit={}){const token=typeof window!=="undefined"?localStorage.getItem("rappi_token"):null;const headers=new Headers(options.headers);headers.set("Content-Type","application/json");if(token)headers.set("Authorization",`Bearer ${token}`);const response=await fetch(`${API}${path}`,{...options,headers});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.message||"No se pudo completar la solicitud");return data;}
+export function rolePath(role:string){return role==="consumer"?"/client":role==="store"?"/store-admin":"/delivery"}

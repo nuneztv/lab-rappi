@@ -1,0 +1,6 @@
+-- Documentacion del esquema esperado. No se ejecuta automaticamente.
+CREATE TABLE users (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), name TEXT NOT NULL, email TEXT NOT NULL UNIQUE, password TEXT NOT NULL, role TEXT NOT NULL CHECK (role IN ('consumer','store','delivery')));
+CREATE TABLE stores (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), name TEXT NOT NULL, is_open BOOLEAN NOT NULL DEFAULT true, user_owner_id UUID NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE);
+CREATE TABLE products (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), name TEXT NOT NULL, price INTEGER NOT NULL CHECK (price >= 0), store_id UUID NOT NULL REFERENCES stores(id) ON DELETE CASCADE);
+CREATE TABLE orders (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), client_id UUID NOT NULL REFERENCES users(id), delivery_id UUID NULL REFERENCES users(id), store_id UUID NOT NULL REFERENCES stores(id), status TEXT NOT NULL DEFAULT 'waiting_for_deliver' CHECK (status IN ('waiting_for_deliver','in_progress','delivered')), created_at TIMESTAMP NOT NULL DEFAULT now());
+CREATE TABLE order_items (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE, product_id UUID NOT NULL REFERENCES products(id), quantity INTEGER NOT NULL CHECK (quantity > 0));
